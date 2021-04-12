@@ -10,6 +10,8 @@ from calendar import monthrange
 os.environ['TZ'] = 'America/Sao_Paulo'
 time.tzset()
 
+Book = "/home/pi/Codes/reminder-ivy-bot/Book.xls"
+
 class Event(object):
     def __init__(self, date, course, task, desc):
         self.id = id
@@ -31,7 +33,7 @@ class Event(object):
 
 class TelegramBot:
     def __init__(self):
-        token = 'INSERT_TOKEN_HERE'
+        token = '1699279890:AAEjkNz4veLqMUqkBGU60j173VcGNEMU6h4'
         self.url_base = f'https://api.telegram.org/bot{token}/'
 
     def Iniciar(self):
@@ -41,11 +43,17 @@ class TelegramBot:
             dados = atualizacao["result"]
             if dados:
                 for dado in dados:
+                    message = {}
+                    if "message" in dado:
+                        message = dado["message"]
+                    else:
+                        message = dado["edited_message"]
+
                     update_id = dado['update_id']
-                    mensagem = str(dado["message"]["text"])
-                    chat_id = dado["message"]["from"]["id"]
+                    mensagem = str(message["text"])
+                    chat_id = message["from"]["id"]
                     first = int(
-                        dado["message"]["message_id"]) == 1
+                        message["message_id"]) == 1
                     resposta = self.criar_resposta(
                         mensagem, first)
                     self.responder(resposta, chat_id)
@@ -73,7 +81,7 @@ class TelegramBot:
         today = datetime.strptime(today, "%d/%m/%Y")
 
         if mensagem == '/mes':
-            wb = open_workbook('Book.xlsx')
+            wb = open_workbook(Book)
 
             end = self.last_day_of_month(today)
 
@@ -122,7 +130,7 @@ class TelegramBot:
             return resp
 
         if mensagem == '/semana':
-            wb = open_workbook('Book.xlsx')
+            wb = open_workbook(Book)
 
             end = self.last_day_of_week(today)
 
